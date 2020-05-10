@@ -1,0 +1,106 @@
+{% extends "public/templates/public_template.html" %}
+
+{% block title %}Upload{% endblock %}
+
+{% block main %}
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+
+      <hr>
+      <!-- <div class="custom-file">
+        <input type="file" class="custom-file-input" id="customFile">
+        <label class="custom-file-label" for="customFile">Choose file</label>
+      </div> -->
+ 
+      <div class="row py-4">
+        <div class="col-lg-6 mx-auto">
+
+          <!-- Upload image input-->
+          <form action="classification" method="POST" enctype="multipart/form-data">
+            <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
+              <input id="upload" name="image" type="file" onchange="readURL(this);" class="form-control border-0">
+              <label id="upload-label" for="upload" class="font-weight-light text-muted">Choose file</label>
+              <div class="input-group-append">
+                <label for="upload" class="btn btn-light m-0 rounded-pill px-4"> <i
+                    class="fa fa-cloud-upload mr-2 text-muted"></i><small
+                    class="text-uppercase font-weight-bold text-muted">Choose file</small></label>
+              </div>
+            </div>
+            <div class="col text-center">
+              <button type="submit" class="btn btn-light m-0 rounded-pill px-4 center"> <small
+                  class="text-uppercase font-weight-bold text-muted">detect</small></button>
+            </div>
+          </form>
+          <!-- Uploaded image area-->
+          <p class="font-italic text-white text-center">The image uploaded will be rendered inside the box below.</p>
+          <div class="image-area mt-4"><img id="imageResult" src="#" alt=""
+              class="img-fluid rounded shadow-sm mx-auto d-block"></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row h-100 align-items-center justify-content-center text-center">
+    <div class="col-lg-8 align-self-baseline">
+      {% if confidence is defined %}
+      {% if confidence > 0.5%}
+      <p class="text-white-75  mb-5"> This is a cat </p>
+      {% else %}
+      <p class="text-white-75  mb-5"> This is a dog </p>
+      {% endif %}
+      {% endif %}
+
+    </div>
+    <div class="col-lg-10 align-self-end">
+      <h1 class="text-uppercase text-white font-weight-bold">Wheat Detection</h1>
+      <hr class="divider my-4" />
+    </div>
+
+    <div class="col-lg-8 align-self-baseline">
+      <p class="text-white-75 font-weight-light mb-5">This is a project to identify the wheat by picture
+      </p>
+    </div>
+  </div>
+</div>
+<script>
+  // Add the following code if you want the name of the file appear on select
+  $(".custom-file-input").on("change", function () {
+    var fileName = $(this).val().split("\\").pop();
+    $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+  });
+  function readURL(input) {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+
+      reader.onload = function (e) {
+        $('#imageResult')
+          .attr('src', e.target.result);
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  $(function () {
+    $('#upload').on('change', function () {
+      readURL(input);
+    });
+  });
+
+  /*  ==========================================
+      SHOW UPLOADED IMAGE NAME
+  * ========================================== */
+  var input = document.getElementById('upload');
+  var infoArea = document.getElementById('upload-label');
+
+  input.addEventListener('change', showFileName);
+  function showFileName(event) {
+    var input = event.srcElement;
+    var fileName = input.files[0].name;
+    infoArea.textContent = 'File name: ' + fileName;
+  }
+</script>
+
+{% endblock %}
