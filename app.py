@@ -19,6 +19,7 @@ app = Flask(__name__)
 app.config["IMAGE_UPLOADS"] = os.path.join('static','upload')
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["JPEG","JPG","PNG","GIF"]
 app.config["MAX_CONTENT_LENGTH"] = 50*1024*1024
+IMG_CHANNELS = 3
 MODEL_NAME = 'wheat_detection.h5'
 IMAGE_SIZE = 512
 def castF(x):
@@ -102,8 +103,11 @@ def hello_there(name):
     content = "Hello there, " + clean_name + "! It's " + formatted_now
     return content
 def load_and_preprocess_image(path):
-  image = tf.io.read_file(path)
-  return preprocess_image(image)
+    img = imread(path)[:,:,:IMG_CHANNELS]
+    img = resize(img, (IMAGE_SIZE, IMAGE_SIZE), mode='constant', preserve_range=True)
+    X_train = []
+    X_train.append(img)
+    return X_train
 
 def preprocess_image(image):
     image = tf.image.decode_jpeg(image, channels=3)
@@ -113,14 +117,14 @@ def preprocess_image(image):
 
 def detect_wheat(path):
     processed_img = load_and_preprocess_image(path)
-    result = model.predict(tf.reshape(processed_img,(1,IMAGE_SIZE,IMAGE_SIZE,3)))
+    result = model.predict([processed_img])
     print(result)
     alpha = result[0]
     alpha = resize(alpha,(1024,1024))
     alpha = np.squeeze(alpha)
     return alpha
 def draw_alpha(path,alpha):
-    alpha = np.where(alpha>0.4,.5,1.0)
+    alpha = np.where(alpha>0.43,.5,1.0)
     alpha_mask_img = Image.fromarray((alpha*255).astype(np.uint8))
     image = Image.open(path)
     white_img = Image.new('RGB',image.size,(255,255,255))
